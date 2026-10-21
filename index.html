@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Doc QA - ask questions about your own documents, in your browser</title>
+<meta name="description" content="Retrieval-augmented question answering over your own documents. MiniLM embeddings plus an extractive QA model run fully in your browser - free, private, no API keys.">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./"><span class="brand-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg></span><span>Doc QA</span></a>
+    <nav class="site-nav">
+      <a class="nav-link" href="#docs">Documents</a>
+      <a class="nav-link" href="#chat">Chat</a>
+      <a class="nav-link" href="#limits">Limits</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-icon" data-theme-toggle aria-label="Toggle dark mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg></button>
+      <button class="btn btn-ghost btn-icon menu-btn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <section class="hero wrap rise">
+    <span class="hero-eyebrow">RAG without a server</span>
+    <h1>Ask questions about your own documents</h1>
+    <p class="lede">Paste policies, notes or specs. Doc QA embeds every chunk with MiniLM, retrieves the passages that matter for your question, and extracts an answer with DistilBERT - all on your device. Nothing is uploaded.</p>
+    <div class="row row-wrap mt16">
+      <button class="btn btn-primary btn-lg" id="btnSample">Load the sample workspace</button>
+      <a class="btn btn-ghost btn-lg" href="#docs">Add your own document</a>
+    </div>
+    <p class="small muted mt16" id="modelStatus">Models load on your first question (about 90 MB, cached for offline use afterwards).</p>
+  </section>
+
+  <section class="wrap rise rise-1 mt24" id="docs">
+    <div class="sec-head">
+      <div><h2>Your documents</h2><p class="muted">Every document is split into overlapping chunks and embedded locally.</p></div>
+      <span class="chip chip-soft" id="docCount">0 documents</span>
+    </div>
+    <div class="grid grid-3" id="docList"></div>
+    <div class="card card-pad-lg mt16">
+      <h3 class="mb16">Add a document</h3>
+      <div class="row row-wrap mb16">
+        <input class="input" id="docName" placeholder="Document name, e.g. Refund policy" style="flex:1;min-width:220px">
+        <label class="btn btn-ghost" for="fileInput">Or import .txt / .md</label>
+        <input type="file" id="fileInput" accept=".txt,.md,.text,.markdown" hidden>
+      </div>
+      <textarea class="input" id="docText" rows="6" placeholder="Paste the document text here..."></textarea>
+      <div class="row row-wrap mt16">
+        <button class="btn btn-primary" id="btnAddDoc">Add and embed</button>
+        <span class="small muted" id="docHint">Chunked into ~120-word passages with overlap for context.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap rise rise-2 mt24" id="chat">
+    <div class="sec-head">
+      <div><h2>Chat with your documents</h2><p class="muted">Answers are extracted from your text and always cite the passage they came from.</p></div>
+    </div>
+    <div class="card card-pad-lg">
+      <div class="stack mb16" id="chatLog">
+        <div class="note-box" id="chatEmpty">Load or add a document, then ask something like <b>"How many leave days do I get?"</b> or <b>"What is the refund window?"</b></div>
+      </div>
+      <div class="row">
+        <input class="input" id="qInput" placeholder="Ask a question about your documents..." style="flex:1">
+        <button class="btn btn-primary" id="btnAsk">Ask</button>
+      </div>
+      <div class="progress mt16 hidden" id="loadBar"><div class="progress-fill" id="loadFill" style="width:0%"></div></div>
+      <p class="small muted mt16 hidden" id="loadText"></p>
+    </div>
+  </section>
+
+  <section class="wrap rise rise-3 mt24 mb24" id="limits">
+    <div class="card card-pad-lg">
+      <h2 class="mb16">How it works, and honest limits</h2>
+      <div class="grid grid-2">
+        <div>
+          <h3 class="mb16">Pipeline</h3>
+          <ul class="check-list">
+            <li>Chunking: ~120-word passages, 30-word overlap</li>
+            <li>Embeddings: all-MiniLM-L6-v2 (23 MB), cosine similarity top-3</li>
+            <li>Answer: DistilBERT extractive QA (65 MB) over the best passage</li>
+            <li>Models download once from Hugging Face CDN, then run offline from the browser cache</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="mb16">Limits</h3>
+          <ul class="cross-list">
+            <li>Extractive, not generative: answers are exact spans of your text, not fluent summaries</li>
+            <li>First question downloads about 90 MB of models (needs a connection once)</li>
+            <li>English documents work best; numbers and dates can confuse the QA model</li>
+            <li>Documents live in memory only - reloading the page clears them</li>
+            <li>If the answer is not in your documents, it says so instead of inventing one</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer"><div class="wrap">Doc QA - retrieval-augmented QA on device · <a href="#limits">how it works</a></div></footer>
+<div class="toast-wrap" id="toastWrap"></div>
+<script src="ui.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
