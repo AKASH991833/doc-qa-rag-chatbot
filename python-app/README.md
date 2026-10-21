@@ -22,6 +22,9 @@ Note on the stack choice: the earlier plan mentioned sentence-transformers + FAI
 pip install -r requirements.txt
 uvicorn api:app --port 8000
 # then: POST /sessions, POST /sessions/{id}/documents, POST /sessions/{id}/ask
+
+# or the optional Streamlit UI:
+streamlit run streamlit_app.py
 ```
 
 ## Tests
@@ -40,5 +43,6 @@ python3 tests/test_api.py        # FastAPI end-to-end
 ## Layout
 
 - `rag_core.py` - chunking, retrieval, session logic (no web imports), unit tested
-- `api.py` - FastAPI surface
+- `api.py` - FastAPI surface (primary interface)
+- `streamlit_app.py` - optional Streamlit front over the same engine, for free Streamlit hosting
 - `tests/` - core and API tests

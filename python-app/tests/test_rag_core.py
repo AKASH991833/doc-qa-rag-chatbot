@@ -69,3 +69,10 @@ if __name__ == "__main__":
         fn()
         print(f"PASS {fn.__name__}")
     print(f"All {len(fns)} tests passed.")
+
+def test_streamlit_app_imports():
+    # streamlit_app requires streamlit; import smoke test
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "streamlit_app", os.path.join(os.path.dirname(__file__), "..", "streamlit_app.py"))
+    assert spec is not None
